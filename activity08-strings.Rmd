@@ -1,6 +1,6 @@
 ---
 title: "Activity 8"
-author: "Name"
+author: "Joey Ferkull"
 output: github_document
 ---
 
@@ -10,6 +10,12 @@ Load the entirety of the `{tidyverse}`.
 You will do a little work with dates in this activity so also load `{lubridate}`.
 Be sure to avoid printing out any unnecessary information and give the code chunk a meaningful name.
 
+```{r loading_packages}
+
+library(tidyverse)
+library(lubridate)
+
+```
 
 
 
@@ -23,6 +29,11 @@ Notice that this file is a tab-delimited file that is stored as a `.txt` file.
 Therefore, you will need to use either `read_delim` with a `delim = ...` argument or (better) `read_tsv`.
 Assign the file to a meaningful object name, be sure to avoid printing any unnecessary information, and give the code chunk a meaningful name.
 
+```{r loading_dataset}
+
+billboard <- readr::read_tsv("data/billboard_songs.txt")
+
+```
 
 
 
@@ -46,7 +57,7 @@ This is a long dataset (34,605 observations)!
 When you look at ``chart date`` you'll notice that it was read in as a numeric (`<dbl>`) variable type.
 What does the format of the date appear to be in?
 
-**Response**:
+**Response**: YYYY-MM-DD
 
 
 In this activity, we will be using `str_...` functions to split or find patterns in strings of information.
@@ -58,6 +69,18 @@ Do the following with your dataset:
 
 Once you have verified that this worked, overwrite your data object.
 
+```{r create_date_variable}
+
+bb <- billboard %>%
+  mutate(date = as.character(`chart date`),
+         year = str_sub(date,1,4),
+         month = str_sub(date,5,6),
+         day = str_sub(date,7,8),
+         date = make_date(year=year, month=month, day=day))
+
+bb
+
+```
 
 
 
@@ -66,19 +89,36 @@ Once you have verified that this worked, overwrite your data object.
 What 10 songs spent the longest on the charts?
 Give only the title, artists, and weeks.
 
+```{r longest_on_charts}
+
+bb %>%
+  select(title, artist, `weeks on chart`) %>% 
+  arrange(desc(`weeks on chart`)) %>% 
+  head(10)
+
+
+```
 
 
 
-**Response**:
+**Response**: 10 titles above spent the longest on the charts
 
 
 What date did the oldest song(s) in this dataset leave the charts?
 Give only the *distinct* dates.
 
+```{r oldest_song_dates}
+
+bb %>% 
+  arrange(date) %>% 
+  distinct(date) %>% 
+  head(10)
+
+```
 
 
 
-**Response**:
+**Response**: 1940-07-20
 
 
 ### Artists who work together
@@ -113,6 +153,18 @@ Using the `artist_credentials` vector, do the following. I recommend that you do
 
 When you verify that this works, save this information into an object called `feat_artist`.
 
+```{r most_featued_artist}
+
+artist_credentials <- bb %>% 
+  pull(artist)
+
+artist_credentials %>% 
+  str_subset("featuring") %>% 
+  str_replace_all("featuring","")
+
+
+
+```
 
 
 
